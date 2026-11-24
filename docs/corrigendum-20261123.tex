@@ -1,0 +1,437 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[hidelinks]{hyperref}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{counterexample}[definition]{Counterexample}
+\newtheorem{repair}[definition]{Repair}
+\theoremstyle{plain}
+\newtheorem{theorem}[definition]{Theorem}
+
+\newcommand{\N}{\mathfrak{N}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\dom}{\operatorname{dom}}
+\newcommand{\id}{\operatorname{id}}
+\newcommand{\relied}{\operatorname{relied}}
+\newcommand{\Root}{\mathsf{root}}
+\newcommand{\Just}{\mathsf{Just}}
+\newcommand{\Nothing}{\mathsf{Nothing}}
+\newcommand{\OInsert}{\mathsf{O\text{-}Insert}}
+\newcommand{\ORetire}{\mathsf{O\text{-}Retire}}
+\newcommand{\ORemove}{\mathsf{O\text{-}Remove}}
+\newcommand{\LBegin}{\mathsf{L\text{-}Begin}}
+\newcommand{\LIter}{\mathsf{L\text{-}Iter}}
+\newcommand{\LFinish}{\mathsf{L\text{-}Finish}}
+\newcommand{\LDivert}{\mathsf{L\text{-}Divert}}
+\newcommand{\LLeave}{\mathsf{L\text{-}Leave}}
+\newcommand{\LUnload}{\mathsf{L\text{-}Unload}}
+
+\title{Corrigendum to \emph{A Programming Paradigm for Spatiotemporal Composability}\\
+  {\large\href{https://arxiv.org/abs/2608.25512v1}{\texttt{arXiv:2608.25512v1}}}}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Fixed-word tests can identify inputs whose captured inverses are distinguishable.
+If a common domain includes a provider and a unit fiber with empty tables, a confined provision stage cannot install a binding and still respect table observation.
+Restricting each stage to compatible registries gives observational recovery and a simulation of the lifecycle rules.
+The ordering requirements of Theorem~80 already contradict one another in a seven-event history with no keys.
+With retirement indexed by incarnation and child commands addressed after episode excision, quiet histories with the same surviving command input admit a common canonical schedule in the original name set and have observationally equivalent endpoints.
+\end{abstract}
+
+\noindent
+Numbered results, definitions, equations and page citations refer to v1. Section references are internal unless prefixed by \emph{v1}.
+A history is \emph{quiet} if its endpoint is quiescent and \emph{open} if none of its episodes closes.
+
+\section{Observational equivalence and iterators}
+\label{sec:obs}
+
+\subsection{Fixed-word tests and captured inverses}
+\label{sec:obs-tests}
+
+In v1 \S3.3.2, Definition~31 and Equation~(33) (p.~23) compare the definedness and outcomes of every fixed word of forward maps and yielded inverses.
+Prefixing a test with one fixed inverse proves respect for that inverse.
+Lemma~32(1) also requires comparison of the two inverses \emph{separately yielded} by one operation at related inputs.
+Lemma~39 (pp.~25--26) uses this comparison to obtain the iterator witness of Definitions~34 and~37.
+
+\begin{counterexample}[Lemmas~32(1) and~39]
+On one key with values in $\mathbb B^2$, take two total operations with unit argument,
+\[
+  \mathsf{read}(a,b)=((a,b),\id,b),\qquad
+  \mathsf{reset}(a,b)=((a,\bot),u_{(a,b)},\ast),
+\]
+where $u_{(a,b)}(x,y)=(a,\text{if }y\text{ then }a\text{ else }b)$.
+Both inverses recover the original input exactly. Every fixed letter preserves equality of second bits, and $\mathsf{read}$ distinguishes unequal second bits. Thus $(a,b)\approx_\A(a',b')$ iff $b=b'$.
+The related inputs $(\bot,\bot)$ and $(\top,\bot)$ yield different inverses under $\mathsf{reset}$. On the common probe $(\bot,\top)$ their outputs are
+\[
+   u_{(\bot,\bot)}(\bot,\top)=(\bot,\bot)
+   \not\approx_\A(\top,\top)=u_{(\top,\bot)}(\bot,\top).
+\]
+This violates operation respect. Lifting $\mathsf{reset}$ to a singleton table gives a one-stage iterator whose yielded inverses fail Definition~34.
+\end{counterexample}
+
+\begin{repair}[Lemmas~32 and~39]
+Fixed-word indistinguishability is the coarsest equivalence respected by every fixed test letter, including its definedness and observable outcome.
+For full operation respect, assume that at $v\sim_k v'$ each operation with the same argument either fails at both inputs or succeeds at both with equal outcomes and related successors.
+In the latter case its captured inverses $g,g'$ must, on \emph{every} pair $w\sim_k w'$, both fail or both succeed with related values.
+In the partial semantics of Definition~30, Equation~(32) (v1 \S3.3.1, p.~22), this contract and exact primitive recovery imply Lemma~39 for any mediated iterator all of whose reachable heads act at keys in $S$.
+In the amended statements $\simeq_S$ denotes table observation on $S$ with the specified key equivalences.
+\end{repair}
+
+\subsection{Accumulator substitution}
+\label{sec:accum}
+
+Lemma~38 (v1 \S3.3.2, p.~25) extends the state equalities of v1 \S3.1 to observational equivalence.
+On $\mathbb B^2$ observe the first bit. Let $f(r,b)=(r,\neg b)$ and let the captured inverse be $g=\id$. The effect is observationally witnessed since $g(f(x))\simeq x$ for every $x$, and both maps respect the observation.
+For the accumulator $\varphi(r,b)=(b,b)$ and $x=(\bot,\bot)$, however,
+\[
+  \varphi(g(f(x)))=(\top,\top)\not\simeq(\bot,\bot)=\varphi(x).
+\]
+
+\begin{repair}[Lemma~38]
+Substitution through an accumulator requires that it respect $\simeq$.
+The identity and all inverses of witnessed effects respect $\simeq$. Their compositions therefore respect it, and every state $(\gamma,\varphi)$ reached from $(\gamma_0,\id)$ by applications and LIFO reversions satisfies $\varphi(\gamma)\simeq\gamma_0$.
+For Theorem~15 (v1 \S3.1.2, pp.~14--15), the lift of a witnessed effect on respecting accumulators is itself witnessed exactly when every inverse $g_x$ captured at $x$ satisfies $g_x\circ f\simeq\id$ \emph{as maps}. This requires $g_x(f(y))\simeq y'$ for all $y\simeq y'$ with that same capture.
+\end{repair}
+
+\section{Scoped witnesses and state comparison}
+\label{sec:scoped}
+
+\subsection{Provision, allocation and the domain of a witness}
+\label{sec:scoped-sem}
+
+Definitions~37 and~58 (pp.~25, 39) interpret stages and their captured inverses on a common domain $\Gamma$. A component must supply a witness at its declared keys (Definition~48, v1 \S4.1, p.~31).
+Definition~51 (p.~33) observes the union of the tables on $S$,
+$\sigma_\gamma^S=\bigcup_{m\in\dom(F_\gamma)}\sigma_m|_S$.
+Lemma~57 (v1 \S4.2.3, pp.~38--39) asserts confinement and a witness on $S=d_n\cup p_n$ for the stages of Definition~56.
+
+\begin{counterexample}[A global provision witness]
+Let $X,Y\in\Gamma$ each contain a single fiber $n$ with an empty table. In $X$ its component declares $p_n=\{k\}$ and is ready to install $k$. In $Y$ it is the unit component with $p_n=\varnothing$. Thus $X\simeq_{\{k\}}Y$.
+If the global head $e$ implements provision at $X$, its output binds $k$.
+At $Y$, confinement under Definition~55(1) preserves the sole row and its declaration. Ownership $\dom(\sigma_n)\subseteq p_n$ (p.~33) forces its output table to be empty. The two outputs differ in binding presence, contrary to Definitions~33--34.
+Making $e$ fail at $Y$ also violates the definedness condition following Equation~(33) (p.~23).
+Under these common-domain, confinement and ownership assumptions a history from the empty registry cannot create its first binding. Before that binding, every table is empty and the unit probe gives the same contradiction.
+\end{counterexample}
+
+\begin{counterexample}[The allocation guard]
+A parent $P$ with $d_P=p_P=\varnothing$ is ready to allocate a child declaring $k$. Let another root $B$ be retired, inactive and childless, with $p_B=\{k\}$ and empty table. Before and after $\ORemove(B)$ the component and phase of $P$ and all observed tables agree. With $B$ present, declaration disjointness blocks the allocation at every fresh name. After removal the same chosen draw succeeds. Fixing the acting component alone therefore fails to ensure agreement in definedness.
+\end{counterexample}
+
+\begin{counterexample}[The continuation in Lemma~57]
+\label{ex:draw}
+Let $K=\varnothing$ and $\N=\mathbb N$. A birth draws $2$ when free and otherwise draws another fresh name. Compare two cuts with the same parent ready to allocate a unit child, before and after another actor occupies $2$. The cuts are table-equivalent. Let the parent's continuation perform one further birth on draw $2$ and two further births otherwise, all with unit children. Both heads succeed. Unfolding the selected tails once gives $\Nothing$ versus $\Just(i)$ for the remaining iterator. Definition~34 distinguishes the tails, contradicting the global witness claimed by Lemma~57.
+\end{counterexample}
+
+\begin{repair}[Lemma~57]
+Use partial stages on finite rooted registries with ownership and disjoint provision declarations. Each comparison uses Definition~51 on the stage's source or inverse domain. Write $S=d_n\cup p_n$.
+\begin{enumerate}
+\item A unit stage fixes the acting fiber $n$ and its component in both domains.
+\item For provision of $k\in p_n$, fix the same actor and component. Only $n$ can own $k$, so related inputs agree on the absence required to install it. The captured restriction is defined when the binding is present, respects $\simeq_S$ on compatible probes, and exactly recovers the original registry on the stage's output.
+\item For an operation at $k\in S$, also fix the routed provider, its component and the route. Scalar operation respect gives agreement in definedness, outcomes and observed values, including comparison of the captured inverses on compatible probes. Scalar observational recovery gives observational recovery of the lifted operation. Exact scalar recovery gives exact registry recovery. The inverse retains the selected provider.
+\item For allocation of component $c$ at draw $r$, fix the actor and its component and require $r$ free and $p_c$ disjoint from all resident declarations. The inverse domain fixes $r$ with component $c$ and parent $n$. Allocation adds an empty row. Its captured retirement leaves the row resident and restores every table observation.
+\end{enumerate}
+For a finite program require each successful stage to enter the domain of its outcome-selected continuation, retaining the inverse domains needed for rollback. A successful calculation determines these scopes through its committed routes and actual draws.
+Ordinary stages satisfy Definition~55 confinement. Allocations preserve the old tables and their captured retirements change only a flag. On admitted probes, forward execution and the composed partial inverse respect $\simeq_S$ for matched draws, or for draws and continuations transported by one bijection. Rollback on the actual output recovers the input up to $\simeq_S$. Every table edit acts at a key in $S$, so the coordinates outside $S$ are unchanged and the recovered union tables agree up to $\simeq_K$.
+\end{repair}
+
+\subsection{The frame and Equation~(54)}
+\label{sec:frame-eq54}
+
+In Lemma~59(3) (v1 \S4.3, pp.~40--41), the equality $\Psi_t=g_n^t$ also holds at a unit $\LFinish(n)$ with empty accumulator, where both maps are $\id_\Gamma$. The field constancy asserted in Lemma~59(5) ends when a row is removed. Reinsertion at its name can change $\pi_n,d_n,p_n,e_n$.
+
+For Equation~(54) (p.~40), take $K=\varnothing$ and a single reloading root $n$ with empty accumulator in each registry. One program has a terminal unit stage and the other a terminal allocation. Definition~34 relates their forward and inverse maps on the empty table observation, and both continuations terminate. Equation~(54) therefore relates the inputs. After $\LFinish(n)$ the first domain is $\{n\}$ and the second is $\{n,c\}$ for every fresh draw $c$. No successor of the second can match the first as required by Lemma~60 (pp.~41--42).
+
+\begin{repair}[Lemmas~59 and~60]
+In Definition~58, $\LUnload(n)$ alone \emph{selects} $g_n^t$ as $\Psi_t$. The fields $\pi_n,d_n,p_n,e_n$ are constant during one uninterrupted residency.
+
+Compare guarded reachable cuts at the same step index (guarded retirement is defined in \S\ref{sec:incarnation}). Require the same resident names, declarations, parents, retirement flags, phases, committed views, entry and remaining code identifiers, and rule guards. For each name and key, the current slots must both be absent or both contain observationally related values.
+Match live birth stamps and the actual saved inverse words in order, including owners, keys, related scalar callbacks, and child names with their captured stamps.
+Compare stored iterators recursively on each common route and draw and its source and inverse domains. Compare the saved words as partial maps on arbitrary $\simeq_K$-related probes retaining their captured provider declarations.
+
+Assume exact scalar recovery, operation respect and the coeffect commutativity laws. Take a guarded step from either cut and require a mediated entry grammar for each newly created component. The other cut admits a step with the same label, payload and draw. The successors again satisfy the relation, and both selected partial applications give the factorization of Definition~58.
+\end{repair}
+
+\section{Incarnations, equivariance and vestigial entries}
+\label{sec:identity}
+
+\subsection{Guarded retirement}
+\label{sec:incarnation}
+
+Definition~52 (v1 \S4.2.1, p.~35) gives a birth at $c$ the inverse $\ORetire(c)$. Removal (p.~34) frees the name for reuse. When $\LUnload$ is enabled (v1 \S4.2.2, p.~37), it applies the saved accumulator to the current registry.
+
+\begin{counterexample}[Retirement of a replacement root]
+Insert and begin root $P$. Its $\LFinish(P)$ creates child $C$ and saves $\ORetire(C)$. Retire and remove $C$, then insert an unrelated root at the same name. Retire $P$ and execute $\LLeave(P)$ and $\LUnload(P)$. The saved $\ORetire(C)$ retires the replacement root.
+\end{counterexample}
+
+\begin{repair}[Incarnation-indexed retirement]
+A row created by step $t$ has birth stamp $t+1$, the index of its first resident cut. A birth of $c$ saves $(c,t+1)$. During \emph{guarded unload}, a saved $(c,s)$ retires the current row at $c$ exactly when its live stamp equals $s$. In every other case it acts as the identity. Guarded and unstamped replay agree at every table coordinate.
+
+In the amended rules external $\OInsert$ introduces a root. A nonroot enters only by instantiation. Classify an external $\ORetire(n)$ or $\ORemove(n)$ as a root command exactly when $\pi_n=\Root$ immediately before it. Lifecycle steps preserve root membership, so this definition also covers reused names. The displayed $\OInsert$ on p.~34 permits an external insertion with a resident parent.
+\end{repair}
+
+\subsection{Equivariance}
+\label{sec:equivariance}
+
+Lemma~61 (v1 \S4.3, p.~42) renames the registry indices and the names in $\pi$ and $\omega$. Let $P$ be ready to unload with a saved retirement of its live child $c$, and let $\chi$ exchange $c$ with a vacant name. After the displayed renaming, unloading $P$ applies the old capture to $c$ and leaves the row at $\chi(c)$ unretired. Renaming the result of the original unload leaves that row retired. Definition~52 also supplies the drawn name to the program, so a change of draw can change the continuation, as in Counterexample~\ref{ex:draw}.
+
+\begin{repair}[Lemma~61]
+Rename all captured owners and child names, retain their stamps, and transport each child-outcome continuation by precomposition with $\chi^{-1}$. The scoped domains, finite rooted admissibility, well-formedness (Definition~63) and all nine guarded rules then transport in both directions.
+For a fixed program, at an enabled birth with selected draw $c$ and continuation $h$, the transported landing has the same next code exactly when $h(\chi(c))=h(c)$. Agreement at every instantiation instruction suffices for fixed-program equivariance.
+\end{repair}
+
+\subsection{Vestigial entries}
+\label{sec:vestigial}
+
+Lemma~62 (v1 \S4.3, p.~42) calls $n$ vestigial if it is retired, inactive, empty and childless. Under the displayed insertion rule, a new external child may name $n$ as parent before erasure. That same insertion is impossible after erasure.
+
+Restoring $n$ can also disable two kinds of step omitted from Lemma~62(2).
+An allocating $\LIter$, $\LFinish$ or landing $\LDivert$ can draw $n$ or reserve a key in $p_n$ while $n$ is absent. Its chosen birth is then blocked on restoration. If $n$ is the only child of a retired, inactive, empty parent $P$, $\ORemove(P)$ is legal after erasing $n$. Restoring $n$ breaks its leaf guard.
+
+\begin{repair}[Lemma~62]
+Under root-only external insertion, erasing a vestigial $n$ preserves every guarded step at $m\ne n$, including its payload, selected continuation and table projection.
+Conversely, let $\gamma$ have disjoint declarations and vestigial $n$. A chosen step at $m\ne n$ from $\gamma\setminus n$ to $\delta$ lifts to the same event and draw from $\gamma$, with successor $\delta'$ satisfying $\delta'\setminus n=\delta$, exactly under two conditions. Any entry it creates has a name different from $n$ and provisions disjoint from $p_n$. If $n$ has a parent $P$, the step cannot be $\ORemove(P)$.
+\end{repair}
+
+\section{Pairwise independence and entangled cleanup}
+\label{sec:temporal}
+
+\subsection{Births in independent iterators}
+\label{sec:pairwise}
+
+Definition~65 (v1 \S4.3.2, p.~44) calls $m,n$ entangled if $p_m\cap(d_n\cup p_n)$ or $p_n\cap(d_m\cup p_m)$ is nonempty. For other pairs Lemma~66 asserts independence in the sense of Definition~42. Its yield condition, Equation~(40) (p.~27), compares total maps. Definition~65 also requires agreement on the component named by an instantiating iteration.
+
+\begin{counterexample}[A changed child component under total witnesses]
+Use the empty-key model and choice of draw in Counterexample~\ref{ex:draw}. Insert roots $0,1$ with empty declarations and begin both. Root~$1$ has a terminal stage birthing a unit child. Root~$0$ first births a unit child. Its second and final stage births a unit component if its first draw was $2$, and a component with a two-stage entry otherwise.
+These iterators have global Definition~37 witnesses. Extend birth by the identity when the actor is absent. All table observations agree, and both branches of root~$0$ have one remaining stage.
+
+Evaluate the head of root~$0$ before and after root~$1$ allocates its child. Both evaluations succeed. The former draws $2$ and the latter a different name. The selected tails thus name children whose entries have respectively one and two stages. Definition~34 distinguishes those entries on unfolding, so Definition~65's component agreement fails. The roots are unentangled. This contradicts Lemma~66 even with total witnesses.
+\end{counterexample}
+
+\begin{counterexample}[Reservations in the partial semantics]
+Let both roots instead allocate children declaring $k$, with constant continuations and empty parental declarations. At the common cut either can allocate. After the first birth the new row reserves $k$ while its table is empty. The other birth now fails for every draw. This violates preservation of definedness for the native partial yields.
+A reservation can also occur beyond the immediate head. If an operation selects a continuation allocating at $2$, another actor's birth at $2$ can commute with the operation itself while destroying admission of its selected tail.
+\end{counterexample}
+
+\begin{repair}[Lemma~66]
+Fix two distinct actors from a guarded history with the mediated grammars of their actual components. Assume exact primitive recovery, cross-input operation respect and the coeffect commutativity laws. For an entangled pair every key operated on by both is commutative as required by Definition~46.
+
+For an unentangled pair, let $w_m,w_n$ be finite words of generated forward stages and guarded captured inverses. Each probe must contain both acting components and admit both words with respecting stored callbacks. Reserve the births selected in their calculations, including selected continuations beyond the word and successful prefixes before failure.
+Across the two words, births must use distinct draws and disjoint child provisions, and neither draw may be the other birth's parent. A birth and a saved retirement conflict exactly when \emph{both} their name and stamp coincide.
+\begin{enumerate}
+\item At two $\simeq_K$-related probes satisfying these conditions, evaluating $w_m\circ w_n$ on one and $w_n\circ w_m$ on the other either fails on both or succeeds with $\simeq_K$-related tables. From a common stamped probe the successful orders also agree on live stamps. Table equivalence alone permits different initial stamps even for two empty words.
+\item If the foreign word succeeds and a reachable local head is ready and admitted with its selected reservations, the head remains admitted after that word. Its two evaluations agree in definedness, typed outcome, complete selected continuation and child component. Their captured partial inverses agree in definedness and observed tables on compatible related probes. Either actor can serve as the local one.
+\end{enumerate}
+\end{repair}
+
+\subsection{Entangled cleanup}
+\label{sec:entangled}
+
+The paragraph preceding Lemma~67 (v1 \S4.3.2, p.~45) treats a lift at a missing binding as the identity. Requiring strict definedness of both orders in clause~(2) fails in six steps. Let provider~$0$ install $k$ and consumer~$1$ operate on $k$. Execute
+\[
+\begin{aligned}
+ &\OInsert(0),\ \LBegin(0),\ \LFinish(0),\\
+ &\OInsert(1),\ \LBegin(1),\ \LFinish(1).
+\end{aligned}
+\]
+At cut $5$, $g_0^5$ removes $k$ and $\Psi_5$ operates on it. Thus $g_0^5(\Psi_5(\gamma_5))$ is strictly defined with $k$ absent, while $\Psi_5(g_0^5(\gamma_5))$ is undefined. The committed consumer already gives $\relied_0(\gamma_5)$.
+
+\begin{repair}[Lemma~67]
+Let $n$ be installed and let the current step act on an entangled $m\ne n$. If $p_m\cap(d_n\cup p_n)\ne\varnothing$, or if $n$ is reloading, then $\Psi_t=\id_\Gamma$, as in clauses~(1) and~(3). In the other overlap direction, $p_m\cap(d_n\cup p_n)=\varnothing$ and $p_n\cap d_m\ne\varnothing$. With exact primitive recovery and the coeffect commutativity laws, the missing-binding convention gives $g_n^t(\Psi_t(\gamma_t))\simeq_K\Psi_t(g_n^t(\gamma_t))$ for the guarded rollback.
+
+At every reachable guarded cut, strict replay of an actor's \emph{actual} saved word, including each prefix in replay order, is defined there. The binding history retains each captured owner and binding until its inverse is reached, and the operation history keeps its value in the partial callback's domain. This argument applies even at cuts where the unload guard is false.
+\end{repair}
+
+\section{Support, transposition and episode excision}
+\label{sec:support-excision}
+
+\subsection{Support and quiescence}
+\label{sec:support}
+
+In Definition~74 (v1 \S4.3.5, p.~51), Equation~(61) sets $m\triangleleft n$ if $m\prec n$ or $\pi_n=m$. Here $m\prec n$ means that $m$ declares a provision required by $n$. Lemma~75 (pp.~51--52) deduces well-foundedness of $\triangleleft$ and uniqueness in Equation~(62) from acyclicity of $\prec$.
+
+\begin{counterexample}[Lemma~75 under the displayed insertion rule]
+Externally insert a root $P$ requiring $k$, then a child $C$ of $P$ declaring $k$. Give both terminal unit programs and no other declarations. Both insertions satisfy the displayed rule (p.~34), and the unit programs have global witnesses. The only provider edge is $C\prec P$, while $\pi_C=P$ gives $P\triangleleft C$. Both rows are unretired. Equation~(62) says $P\in A$ iff $C\in A$ and $C\in A$ iff $P\in A$. Both $\varnothing$ and $\{P,C\}$ solve it. Lemma~75 has no provision-totality hypothesis.
+\end{counterexample}
+
+\begin{counterexample}[A cycle with root-only insertion and scoped provision]
+Let $O$ provide $x$, let $P$ require $x$ and instantiate a child $C$ declaring $y$, and let a replacement root $Q$ require $y$ and declare $x$. There are no other declarations. The following thirteen primitive steps use distinct names and root-only external insertion:
+\[
+\begin{aligned}
+ &\OInsert(O),\ \LBegin(O),\ \LFinish(O)\ [x\text{ installed}],\\
+ &\OInsert(P),\ \LBegin(P),\ \LFinish(P)\ [C\text{ born}],\\
+ &\ORetire(O),\ \LLeave(O),\ \LLeave(P),\ \LUnload(P),\\
+ &\LUnload(O),\ \ORemove(O),\ \OInsert(Q).
+\end{aligned}
+\]
+Unloading $P$ retires $C$. Removal of $O$ releases $x$ for $Q$. At the endpoint $\prec$ is the chain $C\prec Q\prec P$, but $\pi_C=P$ closes the cycle $P\triangleleft C\triangleleft Q\triangleleft P$. Here Equation~(62) has the unique solution $\varnothing$, since $C$ is retired.
+Step~3 requires the scoped provision of \S\ref{sec:scoped-sem}. Under root-only insertion and the literal global provision witnesses, tables stay empty and acyclic $\prec$ does imply Lemma~75. Indeed, every allocating parent then has empty dependencies, as did each of its allocating ancestors, so a parent edge cannot lie on a mixed cycle.
+\end{counterexample}
+
+\begin{counterexample}[Lemma~77 under the displayed insertion rule]
+With no keys and terminal unit programs, execute
+\[
+  \OInsert(P,\Root),\quad \OInsert(C,P),\quad
+  \ORetire(P),\quad \LBegin(C),\quad \LFinish(C).
+\]
+The target test for $C$ ignores its parent. At this quiet endpoint $C$ is active and $P$ is retired and inactive. Equation~(62) excludes $P$, hence also $C$, although provisions are total. This contradicts Lemma~77 (p.~52).
+\end{counterexample}
+
+\begin{repair}[Lemmas~75 and~77]
+Under guarded unload and root-only external insertion, the predecessors consulted by Equation~(62) form the relation
+\[
+  m\triangleleft_{\rm live} n
+  \quad\Longleftrightarrow\quad
+  \neg\tau_n\ \wedge\ (m\prec n\ \vee\ \pi_n=m).
+\]
+At every reachable cut, each consulted predecessor of an installed fiber is installed and has an earlier episode opening. A live child's allocating episode is still installed, since its unload would otherwise have retired that incarnation.
+Consequently $\triangleleft_{\rm live}$ is well founded exactly when the provider edges between uninstalled names with unretired consumer are acyclic. Under this condition Equation~(62) has a unique solution.
+
+At quiescence with total provisions (Definition~76, p.~52), this solution is the active set. It has a finite linearization ordering all active parent and provider edges.
+At a replay cut, an actor in that order can begin with its original committed view provided it is present, inactive, unretired, has the same component, and the earlier providers are active and still offer the required bindings.
+\end{repair}
+
+\subsection{Transposition and command barriers}
+\label{sec:transposition}
+
+Lemma~78(2) (v1 \S4.3.5, pp.~52--53) exchanges an activation at $m$ with a following command at $q\ne m$ whenever the activation did not instantiate $q$.
+
+\begin{counterexample}[Lemma~78(2) under the displayed insertion rule]
+With no keys, let $\LFinish(m)$ create a unit child $c$, then externally insert $q$ with parent $c$, taking $m,c,q$ distinct. The activation did not instantiate $q$. The insertion is legal after the activation and illegal before it, when its designated parent $c$ is absent.
+\end{counterexample}
+
+The orchestration-reordering argument for Theorem~80 (p.~54) also moves commands past other commands. If a retired, inactive leaf $C$ declares $k$ and a root $Q$ declares $k$, the legal pair $\ORemove(C),\OInsert(Q)$ cannot be reversed. The empty table of $C$ leaves its declaration in force until removal.
+
+\begin{repair}[Lemma~78 and command exchanges]
+Use the root-only external insertion rule. The following exchanges of adjacent steps at distinct actors extend to the suffix of a quiet open guarded history.
+\begin{enumerate}
+\item Two commands commute with their payloads, root classifications and endpoint exactly when the second is enabled before the first. A root command following a child removal can be blocked by reuse of the child's name, by a shared provision declaration, or by the parent's leaf guard. In particular $\ORemove(c),\OInsert(q)$ is reversible exactly when $c\ne q$ and $p_c\cap p_q=\varnothing$. For a legal pair $\ORemove(c),\ORemove(q)$, removing $c$ enables removal of $q$ precisely when $c$ was its last child.
+\item A command can precede the activation immediately before it exactly when that activation did not create its target. In the other direction an activation can cross a preceding root insertion or retirement at a distinct actor. It can cross a removal exactly when any birth it performs still has a free draw and disjoint provisions with the removed row restored.
+\item Under the operation laws and compatible chosen births, two activations can exchange if, whenever the second is $\LBegin(n)$, some target view for $n$ already exists before the first. A just-born child with empty dependencies can begin immediately after its birth and fails this earlier-cut test. Exchange preserves the prefix, root commands and related suffix states, with the stamps of the exchanged positions transposed.
+\end{enumerate}
+\end{repair}
+
+\subsection{Episode deletion}
+\label{sec:excision}
+
+Definition~58 (v1 \S4.3, p.~39) makes $[b,u]$ a maximal interval of installed cuts. Its opening step is at $b-1$. Lemma~79 (v1 \S4.3.5, pp.~53--54) deletes all steps acting on $n$ in $[b,u]$ and all steps at names instantiated there.
+
+\begin{counterexample}[The opening step and the root retirement]
+For a unit root with no keys take the six steps
+\[
+ \OInsert(0),\ \LBegin(0),\ \LFinish(0),\
+ \ORetire(0),\ \LLeave(0),\ \LUnload(0).
+\]
+The episode is $[2,5]$. Literal deletion leaves $\OInsert(0),\LBegin(0)$, with an unretired reloading root and $\LFinish(0)$ enabled. Deleting the opening step as well leaves only $\OInsert(0)$, with an unretired inactive root. The original endpoint is retired and inactive. Retaining $\OInsert(0),\ORetire(0)$ recovers it.
+\end{counterexample}
+
+Deleting by raw name can erase the commands of a later incarnation after a withdrawn child has been removed. Also, an unstamped unload can retire a replacement root and enable its later removal (\S\ref{sec:incarnation}). A history using that removal need not replay under guarded unload.
+
+\begin{repair}[Lemma~79]
+In a quiet guarded history choose a closing episode $[b,u]$ with latest opening. Each edge to a closing consumer committed to this provider, or to a closing episode of a child born here, strictly increases the opening index. Hence neither occurs. A child born in $[b,u]$ and still resident at $u+1$ has never opened an episode of its own. A closing episode of that child would have opened later than the chosen one. An episode continuing to the endpoint would remain installed despite retirement at $u$, contradicting quiescence. Thus at $u+1$ each such child is retired, inactive, empty and childless.
+
+Delete the opening $\LBegin(n)$, the lifecycle steps of $n$ in $[b,u]$, and the retirement and removal commands targeting the child \emph{incarnations} born in that episode. Retain the actor's external commands and all events of later incarnations at reused names.
+With exact primitive recovery, operation respect and coeffect commutativity, the retained events form a strictly shorter quiet guarded history with the same literal root-command sequence. Its endpoint agrees with the original after erasure of removable nonroot vestiges and comparison of the surviving rows and observed values. In particular it preserves $\simeq_K$ and inherits endpoint provision totality whenever the original endpoint has it.
+\end{repair}
+
+\section{Canonical form and confluence}
+\label{sec:confluence}
+
+\subsection{Ordering in Theorem~80(1)}
+\label{sec:t80-1}
+
+Theorem~80(1) (v1 \S4.3.5, p.~54) preserves the original order of all orchestration commands, places commands on externally inserted fibers before every lifecycle step, and places each other command after its target's birth. Its proof (pp.~54--55) also arranges surviving episodes in contiguous blocks.
+
+\begin{counterexample}[A cycle forced by Theorem~80(1)]
+Take $K=\varnothing$ and $\N=\mathbb N$. Let root $P$ have a single stage birthing a unit child $C$, and let root $Q$ have a terminal unit program. Execute
+\[
+\begin{aligned}
+ &\OInsert(P),\ \LBegin(P),\ \LFinish(P)\ [C\text{ born}],\ \ORetire(C),\\
+ &\OInsert(Q),\ \LBegin(Q),\ \LFinish(Q).
+\end{aligned}
+\]
+These terminal programs have global table witnesses. The endpoint is quiet, provisions are vacuously total, support is well founded with $A=\{P,Q\}$, and no episode closes. Legality, preservation of command order, and placement of the root insertion, respectively, force
+\[
+   \text{birth of }C\;<\;\ORetire(C)\;<\;\OInsert(Q)\;<\;\text{birth of }C .
+\]
+No legal replay has that order.
+\end{counterexample}
+
+With only the root-command order fixed, this example allows $\OInsert(Q)$ immediately after $\OInsert(P)$. The removal barrier of \S\ref{sec:transposition} limits that amendment. If a child reserves $k$ temporarily and a later root $Q$ claims $k$ for the rest of the history, its insertion must follow the child's removal in every replay retaining both lifetimes. This is a local insertion-guard obstruction in the primitive rules.
+
+\begin{counterexample}[A release within one surviving episode]
+Let $P$ have empty declarations and allocate $C_1$ at $\LIter(P)$ and $C_2$ at $\LFinish(P)$, each declaring $k$. Insert and begin $P$, take its $\LIter$, retire and remove $C_1$, take its $\LFinish$, then retire $C_2$. This quiet open history requires a command between the two landings. Until $\ORemove(C_1)$ the reservation blocks the second birth at every draw.
+\end{counterexample}
+
+\begin{counterexample}[Two surviving episodes must interleave]
+In the scoped semantics of \S\ref{sec:scoped-sem}, insert and begin root $P$ with empty declarations. Its $\LIter$ creates $C_1$ declaring $k_1$. Retire and remove $C_1$.
+Insert and begin root $Q$ declaring $k_1$. Its $\LIter$ creates $C_2$ declaring $k_2$. Retire and remove $C_2$. Now $Q$ finishes by providing $k_1$, and $P$ finishes by creating a child $C_3$ declaring $k_2$. Begin and finish $C_3$ to provide $k_2$.
+The history is quiet and open with total provisions. The retained $Q$ reserves $k_1$ from its insertion, so $P$ must create $C_1$ before $Q$ is inserted. The retained $C_3$ reserves $k_2$ from its birth, so $Q$ must create $C_2$ before $P$ finishes. Every quiet open replay preserving these endpoint rows, even up to renaming and vestige erasure, has a $P$ step, a $Q$ step, then another $P$ step, although $P,Q$ are incomparable under $\triangleleft$.
+\end{counterexample}
+
+\subsection{Command input in Theorem~80(2)}
+\label{sec:t80-2}
+
+Theorem~80(2) (v1 \S4.3.5, statement p.~54, proof p.~55) compares quiet endpoints for the same orchestration steps up to a renaming and the relation of Definition~58, hence up to $\simeq_K$. With the binding-producing components admitted in \S\ref{sec:scoped-sem}, neither raw commands nor pre-excision child addresses determine the endpoint tables.
+
+\begin{counterexample}[Equal raw commands]
+Insert roots $P,Q$ with empty declarations. Each births one child. The child of $P$ provides $1$ at $k_1$ and the child of $Q$ provides $1$ at $k_2\ne k_1$. In both histories the draws are $2,3$ in that order, and $\ORetire(2),\ORemove(2)$ immediately follow the first birth.
+If $P$ finishes first, its child is removed. The child of $Q$ activates, leaving $\{k_2\mapsto1\}$. If $Q$ finishes first, the same commands remove its child, leaving $\{k_1\mapsto1\}$. Both histories are quiet, total on provisions, and have contiguous support-ordered episodes. Neither renaming owners nor erasing empty vestiges can change which key is bound.
+\end{counterexample}
+
+\begin{counterexample}[Equal historical child addresses]
+Let provider $V$ publish $k_1\mapsto7$. Parent $P$ requires $k_1$ and births a child $C$ that can publish $k_2\mapsto7$. Both histories insert $V,P$, retire and remove $V$, reinsert the same provider component at the same name, then issue $\ORetire(C),\ORemove(C)$. In both, these last commands target the same raw name, component, and first birth stage of the same parent incarnation.
+\begin{itemize}
+\item If $P$ first activates under the original $V$, its child is born before $V$ retires. When $V$ leaves, $P$ leaves and unloads, retiring that child. The two child commands remove it. Once the replacement provider is active, $P$ activates again and its new child provides $k_2$. The endpoint binds both keys.
+\item If $P$ first activates under the replacement provider, the same child commands remove the child of its surviving episode. The endpoint binds only $k_1$.
+\end{itemize}
+Both histories are quiet and total on provisions. They use no dependency callbacks, and the continuations ignore the drawn names. Excision deletes the two child commands in the first history and retains them in the second. Thus equal historical addresses give different \emph{surviving} command words.
+\end{counterexample}
+
+\subsection{Addressed schedules and endpoints}
+\label{sec:t80-repair}
+
+\begin{definition}[Birth addresses and command input]
+A root insertion has address $\mathsf{root}(i)$, where $i$ counts all preceding external insertions. A child born to incarnation $\alpha$ has address $\mathsf{child}(\alpha,j)$, where $j$ counts all preceding $\LIter$, $\LFinish$ and $\LDivert$ steps of that parent incarnation, including steps that allocate nothing. Both counts start at zero. A nonallocating $\LIter$ followed by an allocating $\LFinish$ gives $j=1$. Each address identifies at most one birth in the history.
+
+An insertion records its literal name and component. A retirement or removal records its kind, the target's birth address and its component. After excision by \S\ref{sec:excision} to a quiet open history, call the resulting ordered command word $I$ its \emph{surviving input}. The addressed schedule also records the kind and actor's birth address of each lifecycle step.
+\end{definition}
+
+For a registry $\gamma$, project each row to its component (including its declarations and entry code), parent, retirement flag, phase, remaining code when reloading, committed view on its declared dependencies, and table. Discard the saved inverse word and unused view coordinates.
+Write $\gamma\approx_{\rm end}\delta$ if, after erasing removable nonroot vestiges on either side, a bijection of $\N$ matches the projected controls and matches every owner's optional table entries in presence and observational value. Pruning terminates, and distinct removable leaves can be erased in either order. Thus each finite registry has a unique fully pruned form, and comparison of its projection up to renaming gives the same equivalence relation. Erasure removes only empty tables and renaming permutes their owners, so $\gamma\approx_{\rm end}\delta$ implies $\gamma\simeq_K\delta$ directly.
+
+A quiet open history with input $I$ is a \emph{candidate} if, whenever a lifecycle step is immediately followed by a command, the command's target is absent just before that step and present just after it. Consecutive commands retain their order in $I$.
+To order candidates, give addresses the injective natural-number ranks
+\[
+ a(\mathsf{root}(i))=2i,\qquad
+ a(\mathsf{child}(\alpha,j))=2^{a(\alpha)+1}(2j+1)+1.
+\]
+An insertion has priority $1$. Each other event at $\alpha$ has priority $9a(\alpha)+d$, where $d=2,3,4,5,9$ for $\ORetire,\LBegin,\LIter,\LFinish,\ORemove$, respectively. These exhaust the event kinds in a quiet open history. Order schedules lexicographically by their priority words. Each noninsertion priority determines its event kind and address. The common input fixes all command payloads, including the name and component at each insertion position.
+
+A \emph{certified path} in $\N$ consists of legal adjacent exchanges from \S\ref{sec:transposition} and consistent redraws, in either direction, each preserving the entire ordered input $I$. A redraw transports event labels, projected registries and live stamps cut by cut, preserving the addressed event sequence. The permutations for cuts $t,t+1$ agree on every name resident at $t+1$, and each external insertion keeps its literal name.
+
+\begin{theorem}[Repaired Theorem~80]
+Fix the name set $\N$ of Definition~49 (p.~32), which may be finite. Use root-only external insertion and guarded unload. Assume exact primitive recovery, cross-input operation respect, coeffect commutativity, and that at each instantiation the fixed program selects the same next code for any two child names.
+\begin{enumerate}
+\item Every quiet history from $\gamma_0$ reduces by episode excision to an open quiet history with the same literal root-command sequence and an $\approx_{\rm end}$-equivalent endpoint. For its surviving input $I$, candidates in $\N$ have a unique least addressed schedule. The open history reaches a realization of this schedule by a certified path in $\N$ preserving the multiset of addressed events and endpoint agreement.
+\item Two quiet histories from $\gamma_0$ with open reductions having the same surviving input reach $\approx_{\rm end}$-equivalent endpoints and hence $\simeq_K$-equivalent union tables. If every external command targets a root, equality of the original literal command sequences suffices, even when the histories close different episodes.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof outline]
+Each excision strictly shortens the history and preserves quiescence, root commands and endpoint agreement. In an open quiet survivor, advancing each ready command past the preceding activation until its target's birth or the preceding command gives a candidate.
+
+For two survivors with common input, first embed $\N$ in $\N\sqcup\mathbb N$, extending the program by its name-independent child continuations. When a removal frees the name drawn by a later birth, a fresh auxiliary name permits redrawing that birth before the exchange. Each advance decreases the distance to the next event to be matched. Induction on the unmatched suffix aligns the addressed schedules. The survivors thus have equal length, and their active rows correspond by birth address, declaration and observed bindings. In an open quiet history an available provider remains active through the endpoint. Disjointness makes its provision unique there. Consequently two target views selecting a provider for the same key select the same provider address, even if no command recorded its release. The embedding preserves birth addresses and bindings, so this conclusion already holds in $\N$.
+
+Now align prefixes in $\N$. Move pending commands in each suffix to their birth barriers, preserving their input order. If the next event on one side is a command, the input and matched prefix identify its insertion payload or resident target on the other side, so the commands align. If both suffixes delay that command, its address identifies the birth both await. Following strictly earlier provider finishes and parent births in the command-free interval reaches an actor ready at the common cut. The provider correspondence and the recursive address give the same prerequisites in the other interval. Activation exchanges bring that actor's step to the front of both. Repetition aligns the prefixes and the final command-free tail. A consistent redraw connects the two realizations of the aligned schedule entirely in $\N$.
+
+Candidate priority words have a common finite length and hence a lexicographic minimum. Equal minimum words and common input determine the same addressed schedule. Applying the preceding alignment to a minimizing candidate gives the stated path. Endpoint agreement composes through excision, exchanges and redraws. For root-only commands, excision retains the literal word, whose insertions determine all subsequent root target addresses.
+\end{proof}
+
+\end{document}
