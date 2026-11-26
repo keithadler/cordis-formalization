@@ -240,4 +240,85 @@ theorem fresh_draws_necessary :
         (StageRecovery.tableAt ((trace false).state 6) (p.toFun name) key) :=
   ⟨quiet, roots_only, same_roots, fresh_without_reuse, stale_with_reuse, tables_disagree⟩
 
+/-! ## The same boundary with child commands -/
+
+namespace WithChildCommands
+open EquivariantReuseCounterexample (parent)
+
+private theorem name_cases' (name : Name) : name = 0 ∨ name = 1 ∨ name = 2 := by
+  have within := name.isLt
+  have values : name.val = 0 ∨ name.val = 1 ∨ name.val = 2 := by omega
+  rcases values with first | second | third
+  · exact .inl (Fin.ext first)
+  · exact .inr (.inl (Fin.ext second))
+  · exact .inr (.inr (Fin.ext third))
+
+/-- Without reuse every birth in `EquivariantReuseCounterexample` is fresh. -/
+theorem fresh_without_reuse :
+    NominalConfluence.DrawsFresh nominal (EquivariantReuseCounterexample.trace false) := by
+  intro time bounded row c word committed found reloading name vacant present
+  have cuts : time = 0 ∨ time = 1 ∨ time = 2 ∨ time = 3 ∨ time = 4 ∨ time = 5 ∨ time = 6 ∨ time = 7 := by omega
+  rcases cuts with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> rcases name_cases' name with rfl | rfl | rfl
+  all_goals first
+    | exact absurd vacant (fun same => Option.noConfusion same)
+    | exact absurd rfl present
+    | exact Option.noConfusion found
+    | skip
+  · have known : (EquivariantReuseCounterexample.trace false).state 2
+        ((EquivariantReuseCounterexample.trace false).actor 2) =
+        some { (fresh parent none : F) with phase := .reloading .start [] view } := rfl
+    rw [known] at found
+    cases Option.some.inj found
+    cases reloading
+    exact id
+  · have known : (EquivariantReuseCounterexample.trace false).state 5
+        ((EquivariantReuseCounterexample.trace false).actor 5) =
+        some { (fresh parent none : F) with phase := .reloading (.waiting 1) [.retire 1] view } := rfl
+    rw [known] at found
+    cases Option.some.inj found
+    cases reloading
+    change ¬ ((1 : Name) = 2)
+    decide
+
+/-- With reuse the second birth draws the name its parent's code holds. -/
+theorem stale_with_reuse :
+    ¬ NominalConfluence.DrawsFresh nominal (EquivariantReuseCounterexample.trace true) := by
+  intro freshDraws
+  exact freshDraws 5 (by decide) { (fresh parent none : F) with phase := .reloading (.waiting 1) [.retire 1] view }
+    (.waiting 1) [.retire 1] view rfl rfl 1 rfl (fun same => Option.noConfusion same) rfl
+
+theorem tables_disagree :
+    ¬ ∃ p : Renaming.Permutation Name, ∀ name key, Iterators.OptionRel (TypedCoeffectReplay.setoid observe).r
+      (StageRecovery.tableAt ((EquivariantReuseCounterexample.trace true).state 8) name key)
+      (StageRecovery.tableAt ((EquivariantReuseCounterexample.trace false).state 8) (p.toFun name) key) := by
+  rintro ⟨names, matched⟩
+  have atParent := matched 0 ()
+  rw [EquivariantReuseCounterexample.published true] at atParent
+  rcases name_cases' (names.toFun 0) with image | image | image <;> rw [image] at atParent
+  · rw [EquivariantReuseCounterexample.published false] at atParent
+    obtain ⟨same, distinct⟩ := atParent
+    cases same
+    change (if true = true then 1 else 2 : Nat) = (if false = true then 1 else 2) at distinct
+    simp at distinct
+  · exact atParent
+  · exact atParent
+
+/-- Every hypothesis of `nominal_open_confluence` holds for both histories
+except freshness of the second history's reused draw, and the conclusion
+fails. -/
+theorem fresh_draws_necessary :
+    (∀ reuse, ¬ Nonempty (ClosedEpisode (EquivariantReuseCounterexample.trace reuse))) ∧
+      (∀ reuse, Progress.Quiet ((EquivariantReuseCounterexample.trace reuse).state 8)) ∧
+      GuardedBirthAddresses.orchestrationInput (EquivariantReuseCounterexample.trace true) =
+        GuardedBirthAddresses.orchestrationInput (EquivariantReuseCounterexample.trace false) ∧
+      NominalConfluence.DrawsFresh nominal (EquivariantReuseCounterexample.trace false) ∧
+      ¬ NominalConfluence.DrawsFresh nominal (EquivariantReuseCounterexample.trace true) ∧
+      ¬ ∃ p : Renaming.Permutation Name, ∀ name key, Iterators.OptionRel (TypedCoeffectReplay.setoid observe).r
+        (StageRecovery.tableAt ((EquivariantReuseCounterexample.trace true).state 8) name key)
+        (StageRecovery.tableAt ((EquivariantReuseCounterexample.trace false).state 8) (p.toFun name) key) :=
+  ⟨EquivariantReuseCounterexample.open_only, EquivariantReuseCounterexample.quiet,
+    EquivariantReuseCounterexample.same_input, fresh_without_reuse, stale_with_reuse, tables_disagree⟩
+
+end WithChildCommands
+
 end Cordis.Repairs.FreshDrawsNecessary

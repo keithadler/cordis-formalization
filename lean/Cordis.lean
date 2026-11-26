@@ -74,6 +74,7 @@ import Cordis.Repairs.EntangledCleanupBoundary
 import Cordis.Repairs.EquivariantReuseCounterexample
 import Cordis.Repairs.CodeMap
 import Cordis.Repairs.NominalConfluence
+import Cordis.Repairs.NominalOpenConfluence
 import Cordis.Repairs.FreshDrawsNecessary
 -- Audit all imported project declarations and their dependencies.
 import Cordis.AxiomAudit
