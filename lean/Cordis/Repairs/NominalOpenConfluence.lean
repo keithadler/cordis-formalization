@@ -286,3 +286,70 @@ theorem nominal_confluence {program : Code → TypedRegistry.Instruction Name op
     (Iterators.OptionRel.trans transitive (across (a.toFun name) key) (fromSecond (q.toFun (a.toFun name)) key))
 
 end Cordis.Repairs.NominalOpenConfluence
+
+namespace Cordis.Repairs.NominalOpenConfluence
+open Calculus Stages LegalHistory GuardedHistory
+open PaperEffectEquations (CoeffectOperations)
+open TypedRegistry (encodeProgram Scalar)
+universe u
+variable {Name Key Code : Type u} {V : Key → Type u} {ops : CoeffectOperations V}
+variable [DecidableEq Name] [DecidableEq Key]
+set_option linter.unusedSectionVars false
+
+/-! ## Reducing in the quotient
+
+Excision is run on the image of a history in the quotient program, where
+`ChildContinuations` holds and no freshness is needed. Only the original
+history's draws must be fresh, to form its image. -/
+
+/-- Every quiet history with fresh draws has an open quiet reduction of
+its image in the quotient program. -/
+theorem image_reduction {program : Code → TypedRegistry.Instruction Name ops Code}
+    (N : NominalConfluence.Nominal program) {last : Nat} (trace : Trace (encodeProgram program) last)
+    (fresh : NominalConfluence.DrawsFresh N trace) (quiet : Progress.Quiet (trace.state last))
+    (observe : ∀ key, Setoid (V key)) (contracts : GuardedCanonicalSchedule.OperationContracts ops observe) :
+    ∃ (length : Nat) (result : Trace (encodeProgram (NominalConfluence.quotient N)) length)
+      (projected : TypedRegistry.RawRegistry Name ops (NominalConfluence.Orbit N)),
+      ¬ Nonempty (ClosedEpisode result) ∧ Progress.Quiet (result.state length) ∧
+      GuardedHistory.VestigeErasures (CodeMap.registry (NominalConfluence.quot N) (trace.state last)) projected ∧
+      @StageSimulation.Related Name Key (Scalar ops) (NominalConfluence.Orbit N) _
+        (TypedCoeffectReplay.setoid observe) Eq projected (result.state length) := by
+  obtain ⟨length, result, _, _, isOpen, _, _, _, settled, _, projected, erased, related⟩ :=
+    GuardedHistory.eliminate_closed_episodes
+      (CodeMap.mapTrace (NominalConfluence.compatible N) trace (NominalConfluence.draws_agree N fresh))
+      (NominalConfluence.quiet_registry quiet) observe contracts.recovery contracts.commutative contracts.respect
+  exact ⟨length, result, projected, isOpen, settled, erased, related⟩
+
+/-- The general case with freshness asked only of the original histories.
+Two quiet histories are compared through open quiet reductions of their
+images in the quotient program, which `image_reduction` supplies, with
+the same surviving addressed input. Their endpoint tables agree up to a
+renaming. -/
+theorem nominal_confluence_of_images {program : Code → TypedRegistry.Instruction Name ops Code}
+    (N : NominalConfluence.Nominal program) (observe : ∀ key, Setoid (V key))
+    {left right : TypedRegistry.RawRegistry Name ops Code}
+    {leftPruned rightPruned : TypedRegistry.RawRegistry Name ops (NominalConfluence.Orbit N)}
+    {firstLength secondLength : Nat}
+    (first : Trace (encodeProgram (NominalConfluence.quotient N)) firstLength)
+    (second : Trace (encodeProgram (NominalConfluence.quotient N)) secondLength)
+    (leftErased : GuardedHistory.VestigeErasures (CodeMap.registry (NominalConfluence.quot N) left) leftPruned)
+    (rightErased : GuardedHistory.VestigeErasures (CodeMap.registry (NominalConfluence.quot N) right) rightPruned)
+    (leftRelated : @StageSimulation.Related Name Key (Scalar ops) (NominalConfluence.Orbit N) _
+      (TypedCoeffectReplay.setoid observe) Eq leftPruned (first.state firstLength))
+    (rightRelated : @StageSimulation.Related Name Key (Scalar ops) (NominalConfluence.Orbit N) _
+      (TypedCoeffectReplay.setoid observe) Eq rightPruned (second.state secondLength))
+    (firstOpen : ¬ Nonempty (ClosedEpisode first)) (secondOpen : ¬ Nonempty (ClosedEpisode second))
+    (firstQuiet : Progress.Quiet (first.state firstLength)) (secondQuiet : Progress.Quiet (second.state secondLength))
+    (input : GuardedBirthAddresses.orchestrationInput first = GuardedBirthAddresses.orchestrationInput second)
+    (contracts : GuardedCanonicalSchedule.OperationContracts ops observe) :
+    ∃ p : Renaming.Permutation Name, ∀ name key, Iterators.OptionRel (TypedCoeffectReplay.setoid observe).r
+      (StageRecovery.tableAt left name key) (StageRecovery.tableAt right (p.toFun name) key) := by
+  obtain ⟨agreement, _⟩ := GuardedConfluence.compare_surviving_endpoints observe first second
+    leftErased rightErased leftRelated rightRelated (NominalConfluence.quotient_child_continuations N)
+    firstOpen secondOpen firstQuiet secondQuiet input contracts.recovery contracts.commutative contracts.respect
+  obtain ⟨p, tables⟩ := agreement.tables observe
+  refine ⟨p, fun name key => ?_⟩
+  have known := tables name key
+  rwa [NominalConfluence.tableAt_registry, NominalConfluence.tableAt_registry] at known
+
+end Cordis.Repairs.NominalOpenConfluence
