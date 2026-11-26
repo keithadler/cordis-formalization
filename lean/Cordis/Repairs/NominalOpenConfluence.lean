@@ -231,3 +231,58 @@ theorem nominal_open_confluence {program : Code → TypedRegistry.Instruction Na
   rwa [NominalConfluence.tableAt_registry, NominalConfluence.tableAt_registry] at known
 
 end Cordis.Repairs.NominalOpenConfluence
+
+namespace Cordis.Repairs.NominalOpenConfluence
+open Calculus Stages LegalHistory GuardedHistory
+open PaperEffectEquations (CoeffectOperations)
+open TypedRegistry (encodeProgram Scalar)
+universe u
+variable {Name Key Code : Type u} {V : Key → Type u} {ops : CoeffectOperations V}
+variable [DecidableEq Name] [DecidableEq Key]
+set_option linter.unusedSectionVars false
+
+/-- An endpoint agrees with its open reduction. -/
+private theorem reduction_agrees (observe : ∀ key, Setoid (V key))
+    {original pruned reduced : TypedRegistry.RawRegistry Name ops Code}
+    (erased : GuardedHistory.VestigeErasures original pruned)
+    (related : @StageSimulation.Related Name Key (Scalar ops) Code _ (TypedCoeffectReplay.setoid observe) Eq
+      pruned reduced) :
+    GuardedConfluence.EndpointAgreement observe original reduced := by
+  letI : Setoid (Scalar ops) := TypedCoeffectReplay.setoid observe
+  obtain ⟨p, compared⟩ := GuardedCutState.ProjectedAgreement.of_related related
+  exact ⟨p, pruned, reduced, erased, .refl _, compared⟩
+
+/-- The general case, histories with closed episodes as well as child
+commands. As in `compare_surviving_endpoints`, the two quiet histories are
+compared through open quiet reductions with the same surviving addressed
+input. Freshness is asked of the surviving births: a reduction may rename
+names, so it is stated for the reductions rather than the originals. -/
+theorem nominal_confluence {program : Code → TypedRegistry.Instruction Name ops Code}
+    (N : NominalConfluence.Nominal program) (observe : ∀ key, Setoid (V key))
+    {left right leftPruned rightPruned : TypedRegistry.RawRegistry Name ops Code} {firstLength secondLength : Nat}
+    (first : Trace (encodeProgram program) firstLength) (second : Trace (encodeProgram program) secondLength)
+    (leftErased : GuardedHistory.VestigeErasures left leftPruned)
+    (rightErased : GuardedHistory.VestigeErasures right rightPruned)
+    (leftRelated : @StageSimulation.Related Name Key (Scalar ops) Code _ (TypedCoeffectReplay.setoid observe) Eq
+      leftPruned (first.state firstLength))
+    (rightRelated : @StageSimulation.Related Name Key (Scalar ops) Code _ (TypedCoeffectReplay.setoid observe) Eq
+      rightPruned (second.state secondLength))
+    (firstFresh : NominalConfluence.DrawsFresh N first) (secondFresh : NominalConfluence.DrawsFresh N second)
+    (firstOpen : ¬ Nonempty (ClosedEpisode first)) (secondOpen : ¬ Nonempty (ClosedEpisode second))
+    (firstQuiet : Progress.Quiet (first.state firstLength)) (secondQuiet : Progress.Quiet (second.state secondLength))
+    (input : GuardedBirthAddresses.orchestrationInput first = GuardedBirthAddresses.orchestrationInput second)
+    (contracts : GuardedCanonicalSchedule.OperationContracts ops observe) :
+    ∃ p : Renaming.Permutation Name, ∀ name key, Iterators.OptionRel (TypedCoeffectReplay.setoid observe).r
+      (StageRecovery.tableAt left name key) (StageRecovery.tableAt right (p.toFun name) key) := by
+  obtain ⟨a, toFirst⟩ := (reduction_agrees observe leftErased leftRelated).tables observe
+  obtain ⟨q, across⟩ := nominal_open_confluence N first second firstFresh secondFresh firstOpen secondOpen
+    firstQuiet secondQuiet input observe contracts
+  obtain ⟨b, fromSecond⟩ := ((reduction_agrees observe rightErased rightRelated).symm observe).tables observe
+  have transitive : ∀ x y z : Scalar ops, (TypedCoeffectReplay.setoid observe).r x y →
+      (TypedCoeffectReplay.setoid observe).r y z → (TypedCoeffectReplay.setoid observe).r x z :=
+    fun _ _ _ => (TypedCoeffectReplay.setoid observe).trans
+  refine ⟨a.trans (q.trans b), fun name key => ?_⟩
+  exact Iterators.OptionRel.trans transitive (toFirst name key)
+    (Iterators.OptionRel.trans transitive (across (a.toFun name) key) (fromSecond (q.toFun (a.toFun name)) key))
+
+end Cordis.Repairs.NominalOpenConfluence
