@@ -2,7 +2,9 @@ import Cordis.Repairs.GuardedCanonicalSchedule
 
 /-! A nonempty operation family meeting all three `OperationContracts`
 used by the repaired Theorem 80: an integer counter at one key whose
-operations add an argument and whose captured inverse subtracts it. -/
+operations add an argument and whose captured inverse subtracts it.
+The three contracts are the repository's own `OperationContracts`, used
+unchanged. -/
 namespace Cordis.Repairs.CounterContracts
 open PaperEffectEquations (CoeffectOperations ValueOperationWitness)
 open PaperObservationEquations (OperationRespects CommutativeKey IndependentOperations eq41 OperationMonoid)

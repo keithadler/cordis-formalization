@@ -5,7 +5,9 @@ import Cordis.Repairs.GuardedNameExtension
 histories whose consumer really operates. A provider installs 7 in an
 integer counter, a consumer adds 1 to it, and an independent root runs
 either before or after both. The three operation contracts are discharged
-by `CounterContracts`, not vacuously by an empty operation family. -/
+by `CounterContracts`, not vacuously by an empty operation family.
+The histories follow `StagePriorityExample`, with its consumer given a
+real operation. -/
 namespace Cordis.Repairs.CounterConfluenceExample
 open Calculus Stages LegalHistory GuardedHistory
 open Vestigial (cutNotes eventActor)
