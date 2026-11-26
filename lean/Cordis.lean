@@ -72,6 +72,9 @@ import Cordis.Repairs.StagePriorityExample
 import Cordis.Repairs.PinnedRedrawExample
 import Cordis.Repairs.EntangledCleanupBoundary
 import Cordis.Repairs.EquivariantReuseCounterexample
+import Cordis.Repairs.CodeMap
+import Cordis.Repairs.NominalConfluence
+import Cordis.Repairs.FreshDrawsNecessary
 -- Audit all imported project declarations and their dependencies.
 import Cordis.AxiomAudit
 
