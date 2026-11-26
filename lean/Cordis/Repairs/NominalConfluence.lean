@@ -13,7 +13,10 @@ draw a name the parent's current code does not mention (`DrawsFresh`).
 The proof quotients codes by renaming. The quotient program satisfies
 `ChildContinuations`, every history maps to a history of it, and the
 repaired root-only confluence theorem applies there. Tables are not
-touched by the map, so the endpoint tables agree up to a renaming. -/
+touched by the map, so the endpoint tables agree up to a renaming.
+All of the work is done by the repaired Theorem 80
+(`confluence_of_root_only_input`); this file only supplies the quotient
+on which it applies. -/
 namespace Cordis.Repairs.NominalConfluence
 open Calculus Stages LegalHistory GuardedHistory
 open PaperEffectEquations (CoeffectOperations ValueOperationWitness)

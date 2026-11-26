@@ -4,7 +4,9 @@ import Cordis.Repairs.GuardedHistory
 program codes. No rule inspects a code except to read an entry, to run
 the current instruction, and to store the selected continuation, so a
 code map that commutes with the program at the actual landings carries
-every guarded history to a history of the image program. -/
+every guarded history to a history of the image program.
+It follows the pattern of the repository's renaming transport in
+`GuardedRenaming`. -/
 namespace Cordis.Repairs.CodeMap
 open Calculus Stages LegalHistory GuardedHistory
 open IncarnationReplay (Capture)

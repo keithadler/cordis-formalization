@@ -7,7 +7,10 @@ whose births draw names fresh for the drawing code, end with tables that
 agree up to a renaming. Retirements and removals of children are allowed,
 so a removed child's name can be drawn again; freshness is what keeps such
 a reuse out of the parent's code. `EquivariantReuseCounterexample` is the
-matching failure when one draw is stale. -/
+matching failure when one draw is stale.
+The comparisons are the repository's `compare_open_endpoints` and
+`compare_surviving_endpoints`, and the reductions come from
+`eliminate_closed_episodes`, all applied unchanged to the quotient program. -/
 namespace Cordis.Repairs.NominalOpenConfluence
 open Calculus Stages LegalHistory GuardedHistory
 open PaperEffectEquations (CoeffectOperations)
