@@ -8,7 +8,10 @@ its second birth, compares the drawn name with the stored one. After the
 first child is retired and removed, the second draw may reuse its name or
 take a fresh one. The two histories have identical events, commands, and
 surviving input, and both are quiet and open, but the parent publishes 1
-in one and 2 in the other, so their endpoints do not agree. -/
+in one and 2 in the other, so their endpoints do not agree.
+It builds on the repository's `PinnedRedrawExample`, which already forces a
+second birth to reuse a removed child's name, and on the draw-dependence
+counterexamples for Lemmas 57 and 66. -/
 namespace Cordis.Repairs.EquivariantReuseCounterexample
 open Calculus Stages LegalHistory GuardedHistory
 open Vestigial (cutNotes eventActor)
